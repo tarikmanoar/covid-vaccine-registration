@@ -54,7 +54,7 @@ Follow these steps to set up and run the Laravel application:
 
 7. **Run database migrations:**
     ```bash
-    php artisan migrate
+    php artisan migrate:fresh --seed
     ```
 
 8. **Start the development server:**
