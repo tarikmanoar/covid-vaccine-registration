@@ -35,6 +35,8 @@ class RegisteredUserController extends Controller
             'phone' => ['required', 'string', 'max:16', 'unique:'.User::class],
             'address' => ['required', 'string', 'max:255'],
             'nid' => ['required', 'string', 'regex:/^\d{10}$|^\d{13}$|^\d{17}$/', 'unique:'.User::class],
+        ], [
+            'nid.regex' => 'NID must be 10, 13, or 17 digits.',
         ]);
 
         $user = User::create([
