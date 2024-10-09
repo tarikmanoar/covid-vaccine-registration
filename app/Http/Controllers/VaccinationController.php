@@ -31,7 +31,7 @@ class VaccinationController extends Controller
      */
     public function store(Request $request)
     {
-        return $validatedData = $request->validate([
+        $validatedData = $request->validate([
             'center_id' => ['required', 'integer', 'exists:vaccine_centers,id'],
             'date' => ['required', 'date', 'after:today', function ($attribute, $value, $fail) {
                 $dayOfWeek = date('N', strtotime($value));
