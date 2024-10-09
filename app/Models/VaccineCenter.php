@@ -27,7 +27,15 @@ class VaccineCenter extends Model
         'latitude',
         'longitude',
         'hours',
-        'daily_limit',
+        'capacity',
         'notes',
     ];
+
+    /**
+     * Get the vaccine registration records associated with the vaccine center.
+     */
+    public function vaccineRegistrations()
+    {
+        return $this->hasMany(VaccineRegistration::class, 'center_id');
+    }
 }

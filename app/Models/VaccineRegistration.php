@@ -15,6 +15,7 @@ class VaccineRegistration extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'center_id',
         'user_id',
         'vaccine_id',
         'status',

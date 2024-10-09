@@ -28,7 +28,7 @@ class VaccineCenterFactory extends Factory
             'latitude' => $this->faker->latitude,
             'longitude' => $this->faker->longitude,
             'hours' => $this->faker->sentence,
-            'daily_limit' => $this->faker->numberBetween(1, 100),
+            'capacity' => $this->faker->numberBetween(1, 100),
             'notes' => $this->faker->sentence,
         ];
     }

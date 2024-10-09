@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('latitude');
             $table->string('longitude');
             $table->string('hours');
-            $table->integer('daily_limit')->default(10);
+            $table->integer('capacity')->default(10);
             $table->string('notes');
             $table->timestamps();
         });

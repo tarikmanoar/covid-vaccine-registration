@@ -53,7 +53,7 @@ class User extends Authenticatable
     /**
      * Get the vaccine registration record associated with the user.
      */
-    public function vaccineRegistration()
+    public function vaccinations()
     {
         return $this->hasMany(VaccineRegistration::class);
     }
