@@ -76,7 +76,10 @@ class VaccinationController extends Controller
                 'doze' => $validatedData['doze'],
                 'status' => 'Not scheduled',
             ]);
-            info('Vaccine registration created', ['vaccine' => $vaccine]);
+            $vaccine->history()->create([
+                'status' => 'Pending',
+                'note' => "Appilied for {$validatedData['doze']} vaccination",
+            ]);
 
             return to_route('dashboard')->with('success', 'Successfully registered for vaccination');
         } catch (\Exception $e) {

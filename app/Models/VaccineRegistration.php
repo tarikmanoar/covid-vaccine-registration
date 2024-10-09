@@ -42,4 +42,9 @@ class VaccineRegistration extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function history()
+    {
+        return $this->hasMany(VaccinationHistory::class, 'vaccine_id');
+    }
 }
