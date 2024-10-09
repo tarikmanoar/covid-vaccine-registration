@@ -31,11 +31,12 @@ class VaccinationController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        return $validatedData = $request->validate([
             'center_id' => ['required', 'integer', 'exists:vaccine_centers,id'],
             'date' => ['required', 'date', 'after:today', function ($attribute, $value, $fail) {
                 $dayOfWeek = date('N', strtotime($value));
-                if ($dayOfWeek > 5) {
+                info($dayOfWeek);
+                if (in_array($dayOfWeek, [5, 6])) {
                     $fail('The '.$attribute.' must be a weekday (Sunday to Thursday).');
                 }
             }],
