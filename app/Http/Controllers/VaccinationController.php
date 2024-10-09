@@ -35,41 +35,59 @@ class VaccinationController extends Controller
             'center_id' => ['required', 'integer', 'exists:vaccine_centers,id'],
             'date' => ['required', 'date', 'after:today', function ($attribute, $value, $fail) {
                 $dayOfWeek = date('N', strtotime($value));
-                info($dayOfWeek);
-                if (in_array($dayOfWeek, [5, 6])) {
+                if (in_array($dayOfWeek, [5, 6])) {//(Friday: 5, Saturday: 6)
                     $fail('The '.$attribute.' must be a weekday (Sunday to Thursday).');
                 }
             }],
             'doze' => ['required', 'string', 'in:1st,2nd,3rd,4th'],
         ]);
 
-        $center = VaccineCenter::findOrFail($validatedData['center_id']);
         $user = auth()->user();
+        $center = VaccineCenter::findOrFail($validatedData['center_id']);
+
+        $userVaccinations = $user->vaccinations()
+            ->where(function ($query) use ($validatedData) {
+                $query->where('date', $validatedData['date'])
+                    ->orWhere('doze', $validatedData['doze']);
+            })
+            ->orderBy('date', 'desc')
+            ->get();
+
+        $scheduledDoze = $userVaccinations->where('doze', $validatedData['doze'])->first();
+        $existingDate = $userVaccinations->where('date', $validatedData['date'])->first();
 
         if ($center->vaccineRegistrations()->where('date', $validatedData['date'])->count() >= $center->capacity) {
             return back()->with('error', 'No available slot for this date');
         }
 
-        if ($user->vaccinations()->where('status', 'Vaccinated')->count() >= 4) {
-            return back()->with('error', 'You have already vaccinated for all dozes');
+        if ($userVaccinations->where('status', 'Vaccinated')->count() >= 4) {
+            return back()->with('error', 'You have already been vaccinated for all doses');
         }
 
-        $existingVaccinations = $user->vaccinations()->where(fn ($query) => $query->where('date', $validatedData['date'])->orWhere('doze', $validatedData['doze']))->get();
+        if ($userVaccinations->count() == 0 && $validatedData['doze'] !== '1st') {
+            return back()->with('error', 'You have to start with 1st dose');
+        }
 
-        foreach ($existingVaccinations as $vaccination) {
-            if ($vaccination->date == $validatedData['date']) {
-                return back()->with('error', 'You have already registered for vaccination on this date');
+        if ($userVaccinations->count() > 0) {
+            $lastVaccination = $userVaccinations->first();
+            if ($lastVaccination->status !== 'Vaccinated' && $lastVaccination->doze !== $validatedData['doze']) {
+                return back()->with('error', 'You need to complete the previous dose before registering for another');
             }
-            if ($vaccination->doze == $validatedData['doze']) {
-                if ($vaccination->status == 'Scheduled') {
-                    return back()->with('error', 'You have already scheduled for vaccination');
-                }
-                if ($vaccination->status == 'Vaccinated') {
-                    return back()->with('error', 'You have already vaccinated');
-                }
+        }
 
-                return back()->with('error', 'You have already registered for this doze');
+        if ($existingDate) {
+            return back()->with('error', 'You have already registered for vaccination on this date');
+        }
+
+        if ($scheduledDoze) {
+            if ($scheduledDoze->status === 'Scheduled') {
+                return back()->with('error', 'You have already scheduled this dose');
             }
+            if ($scheduledDoze->status === 'Vaccinated') {
+                return back()->with('error', 'You have already been vaccinated for this dose');
+            }
+
+            return back()->with('error', 'You have already registered for this dose');
         }
 
         try {
@@ -79,6 +97,7 @@ class VaccinationController extends Controller
                 'doze' => $validatedData['doze'],
                 'status' => 'Not scheduled',
             ]);
+
             $vaccine->histories()->create([
                 'status' => 'Pending',
                 'note' => "Applied for {$validatedData['doze']} vaccination",
