@@ -47,11 +47,8 @@ class VaccinationController extends Controller
         if ($user->vaccinations()->where('status', 'Vaccinated')->count() >= 4) {
             return back()->with('error', 'You have already vaccinated for all dozes');
         }
-        if ($user->vaccinations()->where('status', '!=', 'Vaccinated')->count()) {
-            return back()->with('error', 'You have already registered for a vaccination');
-        }
 
-        $existingVaccinations = $user->vaccinations()->where('date', $validatedData['date'])->orWhere('doze', $validatedData['doze'])->get();
+        $existingVaccinations = $user->vaccinations()->where(fn ($query) => $query->where('date', $validatedData['date'])->orWhere('doze', $validatedData['doze']))->get();
 
         foreach ($existingVaccinations as $vaccination) {
             if ($vaccination->date == $validatedData['date']) {
@@ -78,13 +75,11 @@ class VaccinationController extends Controller
             ]);
             $vaccine->history()->create([
                 'status' => 'Pending',
-                'note' => "Appilied for {$validatedData['doze']} vaccination",
+                'note' => "Applied for {$validatedData['doze']} vaccination",
             ]);
 
             return to_route('dashboard')->with('success', 'Successfully registered for vaccination');
         } catch (\Exception $e) {
-            return $e->getMessage();
-
             return back()->with('error', 'Failed to register for vaccination');
         }
     }
