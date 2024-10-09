@@ -7,60 +7,174 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+<h1 align="center">COVID vaccine registration system</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Installation Instructions
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Follow these steps to set up and run the Laravel application:
 
-## Learning Laravel
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/tarikmanoar/covid-vaccine-registration.git
+    cd covid-vaccine-registration
+    ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. **Install dependencies:**
+    ```bash
+    composer install
+    ```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+3. **Install Node dependencies:**
+    ```bash
+    npm install && npm run build
+    ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+4. **Copy the `.env` file:**
+    ```bash
+    cp .env.example .env
+    ```
 
-## Laravel Sponsors
+5. **Generate an application key:**
+    ```bash
+    php artisan key:generate
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+6. **Configure your database:**
 
-### Premium Partners
+    Open the `.env` file and update the following lines with your database information:
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=your_database_name
+    DB_USERNAME=your_database_user
+    DB_PASSWORD=your_database_password
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+7. **Run database migrations:**
+    ```bash
+    php artisan migrate
+    ```
 
-## Contributing
+8. **Start the development server:**
+    ```bash
+    php artisan serve
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+9. **Access the application:**
 
-## Code of Conduct
+    Open your web browser and navigate to `http://localhost:8000`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+COVID vaccine registration system application should now be up and running.
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Additional requirement of sending ‘SMS’ notification
 
-## License
+To send SMS notifications along with email notifications, we will use Vonage (formerly known as Nexmo). Follow these steps to set up SMS notifications:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+1. **Install the Vonage library:**
+    ```bash
+    composer require laravel/vonage-notification-channel guzzlehttp/guzzle
+    ```
+
+2. **Set up Vonage configuration:**
+
+    Add your Vonage API credentials to your `.env` file:
+    ```env
+    VONAGE_KEY=your_vonage_api_key
+    VONAGE_SECRET=your_vonage_api_secret
+    VONAGE_SMS_FROM=your_vonage_virtual_number
+    ```
+
+3. **Create a notification class (If not exists):**
+
+    Use the Artisan command to create a new notification class:
+    ```bash
+    php artisan make:notification VaccinationReminder
+    ```
+
+4. **Configure the notification class:**
+
+    Open the newly created `VaccinationReminder` notification class in `app/Notifications/VaccinationReminder.php` and update it to include the `toVonage` method:
+    ```php
+    <?php
+
+    namespace App\Notifications;
+
+    use Illuminate\Bus\Queueable;
+    use Illuminate\Notifications\Notification;
+    use Illuminate\Contracts\Queue\ShouldQueue;
+    use Illuminate\Notifications\Messages\MailMessage;
+    use Illuminate\Notifications\Messages\VonageMessage;
+
+    class VaccinationReminder extends Notification
+    {
+        use Queueable;
+
+        public function __construct()
+        {
+            //
+        }
+
+        public function via($notifiable)
+        {
+            return ['vonage', 'mail'];
+        }
+
+        public function toMail(object $notifiable): MailMessage
+        {
+            return (new MailMessage)
+                ->subject('Your vaccination is scheduled for tomorrow.')
+                ->greeting('Hello, '.$notifiable->name)
+                ->line('This is a reminder that your vaccination is scheduled for tomorrow.')
+                ->action('View Details', url('/'))
+                ->line('Thank you for using our application!');
+        }
+
+        public function toVonage($notifiable)
+        {
+            return (new VonageMessage)
+                        ->content('Your vaccination is scheduled for tomorrow.');
+        }
+    }
+    ```
+
+5. **Route notifications:**
+
+    Ensure your `User` model (or any other notifiable model) includes a `routeNotificationForVonage` method to route the notifications to the correct phone number:
+    ```php
+    <?php
+
+    namespace App\Models;
+
+    use Illuminate\Foundation\Auth\User as Authenticatable;
+    use Illuminate\Notifications\Notifiable;
+
+    class User extends Authenticatable
+    {
+        use Notifiable;
+
+        public function routeNotificationForVonage($notification)
+        {
+            return $this->phone;
+        }
+    }
+    ```
+
+6. **Trigger the notification:**
+
+    You can now trigger the notification from anywhere in your application. For example, you might trigger it when an invoice is paid:
+    ```php
+    use App\Notifications\VaccinationReminder;
+    use App\Models\User;
+
+    $user = User::find(1);
+    $user->notify(new VaccinationReminder());
+    ```
+
+With these steps, your application will be able to send SMS notifications using Vonage.
+
+
+With these steps, your application will be able to send SMS notifications using Twilio.
