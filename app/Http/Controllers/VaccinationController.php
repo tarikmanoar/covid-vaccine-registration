@@ -73,7 +73,7 @@ class VaccinationController extends Controller
                 'doze' => $validatedData['doze'],
                 'status' => 'Not scheduled',
             ]);
-            $vaccine->history()->create([
+            $vaccine->histories()->create([
                 'status' => 'Pending',
                 'note' => "Applied for {$validatedData['doze']} vaccination",
             ]);

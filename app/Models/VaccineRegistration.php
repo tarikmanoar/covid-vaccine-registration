@@ -43,7 +43,12 @@ class VaccineRegistration extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function history()
+    public function center()
+    {
+        return $this->belongsTo(VaccineCenter::class, 'center_id');
+    }
+
+    public function histories()
     {
         return $this->hasMany(VaccinationHistory::class, 'vaccine_id');
     }

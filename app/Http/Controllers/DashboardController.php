@@ -6,8 +6,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $vaccination = auth()->user()->vaccinations;
+        $vaccinations = auth()->user()->vaccinations()->with(['center:id,name,address', 'histories'])->latest()->get()->groupBy('doze');
 
-        return view('dashboard', compact('vaccination'));
+        return view('dashboard', compact('vaccinations'));
     }
 }
