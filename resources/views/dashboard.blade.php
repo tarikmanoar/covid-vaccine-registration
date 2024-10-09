@@ -30,9 +30,10 @@
 
                 @foreach ($vaccinations as $doze => $vaccination)
                 @php
+                    $center = $vaccination->first()->center;
                     $histories = $vaccination->first()->histories;
                 @endphp
-                <p class=" font-semibold text-gray-800 mb-4">{{$doze}} Doze:</p>
+                <p class=" font-semibold text-gray-800 mb-4">{{$doze}} Doze: at ({{$center->name}}) </p>
                 @foreach ($histories as $history)
                 <div class="flex items-start mb-6">
                     <div class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
