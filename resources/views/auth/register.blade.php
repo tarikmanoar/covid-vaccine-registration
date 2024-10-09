@@ -27,14 +27,14 @@
         </div>
 
         <!-- National ID -->
-        <div class="mt-4">
+        <div class="mt-4" x-data="{ valid: true }">
             <x-input-label for="nid" :value="__('NID Number')" />
-            <x-text-input id="nid" class="block mt-1 w-full" type="number" name="nid" :value="old('nid')" required
-                autocomplete="nid" x-data="{ valid: true }" x-mask="99999999999999999"
-                x-on:input="valid = [10, 13, 17].includes($event.target.value.length); if ($event.target.value.length > 17) $event.target.value = $event.target.value.slice(0, 17)" />
+            <x-text-input id="nid" class="block mt-1 w-full" type="text" name="nid" :value="old('nid')" required
+                autocomplete="nid" x-mask="99999999999999999"
+                x-on:input="valid = [10, 13, 17].includes($event.target.value.length); console.log($event.target.value.length, valid); if ($event.target.value.length > 17) $event.target.value = $event.target.value.slice(0, 17)" />
             <em x-show="!valid" x-cloak class="text-red-500 text-sm mt-1">{{ __('National ID number should be 10, 13 or
                 17 digits.') }}</em>
-            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+            <x-input-error :messages="$errors->get('nid')" class="mt-2" />
         </div>
 
         <!-- Address -->

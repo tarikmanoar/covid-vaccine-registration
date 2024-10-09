@@ -34,7 +34,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'phone' => ['required', 'string', 'max:16', 'unique:'.User::class],
             'address' => ['required', 'string', 'max:255'],
-            'nid' => ['required', 'string', 'regex:/^\d{10}|\d{13}|\d{17}$/', 'unique:'.User::class],
+            'nid' => ['required', 'string', 'regex:/^\d{10}$|^\d{13}$|^\d{17}$/', 'unique:'.User::class],
         ]);
 
         $user = User::create([
