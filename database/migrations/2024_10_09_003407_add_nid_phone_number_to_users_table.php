@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('nid')->after('email')->unique();
-            $table->string('phone_number')->after('nid')->unique();
+            $table->string('phone')->after('nid')->unique();
+            $table->string('address')->after('phone');
         });
     }
 
@@ -24,7 +25,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('nid');
-            $table->dropColumn('phone_number');
+            $table->dropColumn('phone');
+            $table->dropColumn('address');
         });
     }
 };

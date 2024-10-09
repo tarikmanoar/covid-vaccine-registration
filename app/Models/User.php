@@ -22,7 +22,9 @@ class User extends Authenticatable
         'email',
         'password',
         'email_verified_at',
-
+        'phone',
+        'address',
+        'nid',
     ];
 
     /**
@@ -46,5 +48,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the vaccine registration record associated with the user.
+     */
+    public function vaccineRegistration()
+    {
+        return $this->hasMany(VaccineRegistration::class);
     }
 }
