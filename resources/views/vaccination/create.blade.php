@@ -2,12 +2,23 @@
 
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
         <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            @if (session('error'))
+            {{-- @if (session('error'))
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                 <strong class="font-bold">@lang('Whoops!')</strong>
                 <span class="block sm:inline">@lang('There were some problems with your input.')</span>
                 <ul class="mt-3 list-disc list-inside text-sm text-red-600">
                     <li>{{ session('error') }}</li>
+                </ul>
+            </div>
+            @endif --}}
+            @if ($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">@lang('Whoops!')</strong>
+                <span class="block sm:inline">@lang('There were some problems with your input.')</span>
+                <ul class="mt-3 list-disc list-inside text-sm text-red-600">
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
                 </ul>
             </div>
             @endif
