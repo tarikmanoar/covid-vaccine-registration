@@ -33,7 +33,12 @@ class VaccinationController extends Controller
     {
         $validatedData = $request->validate([
             'center_id' => ['required', 'integer', 'exists:vaccine_centers,id'],
-            'date' => ['required', 'date', 'after:today'],
+            'date' => ['required', 'date', 'after:today', function ($attribute, $value, $fail) {
+                $dayOfWeek = date('N', strtotime($value));
+                if ($dayOfWeek > 5) {
+                    $fail('The '.$attribute.' must be a weekday (Sunday to Thursday).');
+                }
+            }],
             'doze' => ['required', 'string', 'in:1st,2nd,3rd,4th'],
         ]);
 
