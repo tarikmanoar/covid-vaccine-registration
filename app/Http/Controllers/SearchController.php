@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
@@ -12,13 +12,17 @@ class SearchController extends Controller
         return view('search.index');
     }
 
-    public function results(Request $request)
+    public function results(SearchRequest $request)
     {
-        $request->validate([
-            'nid' => ['required', 'string', 'regex:/^\d{10}$|^\d{13}$|^\d{17}$/', 'exists:'.User::class],
-        ]);
-        $user = User::where('nid', $request->nid)->first();
-        $vaccinations = $user->vaccinations()->with(['center:id,name,address'])->get();
+        $request->validated();
+        $user = User::select(['id', 'nid', 'name'])
+            ->where('nid', $request->nid)
+            ->with(['vaccinations' => function ($query) {
+                $query->select('id', 'user_id', 'center_id', 'date', 'doze', 'status')
+                    ->with(['center:id,name,address']);
+            }])
+            ->first();
+        $vaccinations = $user ? $user->vaccinations : collect();
 
         return view('search.results', compact('user', 'vaccinations'));
     }
