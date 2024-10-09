@@ -175,6 +175,3 @@ To send SMS notifications along with email notifications, we will use Vonage (fo
     ```
 
 With these steps, your application will be able to send SMS notifications using Vonage.
-
-
-With these steps, your application will be able to send SMS notifications using Twilio.
